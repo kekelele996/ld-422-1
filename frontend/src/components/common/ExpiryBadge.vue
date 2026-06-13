@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { getDaysRemaining, getExpiryStatus } from "../utils/calculateExpiry";
+import { getDaysRemaining, getExpiryStatus } from "../../utils/calculateExpiry";
 
 const props = defineProps<{ expiryDate: string }>();
 
