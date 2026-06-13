@@ -4,185 +4,605 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>科学研究实验记录与协作平台</title>
+    <link rel="stylesheet" href="https://unpkg.com/element-plus@2.9.1/dist/index.css" />
     <style>
-      :root {
-        --ink: #20211d;
-        --muted: #6f7168;
-        --line: #dedccf;
-        --paper: #f4f1e8;
-        --panel: #fffdf4;
-        --green: #376b4c;
-        --blue: #315f86;
-        --amber: #a36518;
-        --red: #aa3d35;
-      }
       * { box-sizing: border-box; }
       body {
         margin: 0;
-        font-family: "Gill Sans", "Avenir Next", "Segoe UI", sans-serif;
-        background: var(--paper);
-        color: var(--ink);
+        font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+        background: #f5f7fa;
+        color: #303133;
       }
-      .shell {
+      .app-shell {
         display: grid;
-        grid-template-columns: 280px minmax(0, 1fr);
+        grid-template-columns: 260px minmax(0, 1fr);
         min-height: 100vh;
       }
-      aside {
-        padding: 30px 24px;
-        border-right: 1px solid var(--line);
-        background: #ebe7d9;
+      .app-sidebar {
+        background: #001529;
+        color: #fff;
+        padding: 24px 0;
         position: sticky;
         top: 0;
         height: 100vh;
       }
-      h1 { margin: 0 0 30px; font-size: 27px; line-height: 1.08; letter-spacing: 0; }
-      h2 { margin: 0 0 18px; font-size: 24px; }
-      .nav {
-        width: 100%;
-        border: 0;
-        background: transparent;
-        padding: 12px 10px;
-        border-radius: 6px;
-        display: block;
-        text-align: left;
-        font-size: 15px;
+      .app-logo {
+        font-size: 18px;
+        font-weight: 600;
+        padding: 0 24px 24px;
+        border-bottom: 1px solid #1f3a57;
+        margin-bottom: 12px;
+        line-height: 1.4;
+      }
+      .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 24px;
         cursor: pointer;
+        color: #c9d6e4;
+        font-size: 14px;
+        transition: all 0.2s;
+        text-decoration: none;
       }
-      .nav.active, .nav:hover { background: #dad2be; }
-      main { padding: clamp(22px, 3vw, 44px); }
-      .toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; align-items: center; }
-      input, select, textarea {
-        min-height: 38px;
-        border: 1px solid var(--line);
-        border-radius: 6px;
-        padding: 8px 10px;
-        background: #fffdf7;
+      .nav-item:hover { background: #1f3a57; color: #fff; }
+      .nav-item.active { background: #409eff; color: #fff; }
+      .nav-item .el-icon { margin-right: 10px; }
+      .app-main {
+        padding: 24px;
+        overflow-x: hidden;
       }
-      textarea { width: min(680px, 100%); min-height: 82px; display: block; }
-      button.action {
-        min-height: 38px;
-        border: 0;
-        border-radius: 6px;
-        padding: 8px 14px;
-        color: white;
-        background: var(--green);
-        cursor: pointer;
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
       }
-      button.secondary { background: var(--blue); }
-      button.warning { background: var(--amber); }
-      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px; }
-      .card, table {
-        background: var(--panel);
-        border: 1px solid var(--line);
+      .page-title { margin: 0; font-size: 22px; font-weight: 600; color: #303133; }
+      .stat-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+      .stat-card {
+        background: #fff;
         border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
       }
-      .card { padding: 16px; }
-      .stat { font-size: 30px; font-weight: 700; margin-top: 8px; }
-      .progress { height: 10px; background: #e3dfd0; border-radius: 999px; overflow: hidden; margin-top: 8px; }
-      .progress > span { display: block; height: 100%; background: var(--green); }
-      table { width: 100%; border-collapse: collapse; overflow: hidden; }
-      th, td { padding: 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
-      th { color: var(--muted); font-size: 13px; background: #ece6d7; }
-      .badge { display: inline-flex; border-radius: 999px; padding: 4px 9px; font-size: 12px; background: #ebe6d7; }
-      .badge.Active, .badge.Approved, .badge.Safe { color: var(--green); background: #ddebdc; }
-      .badge.Submitted, .badge.Proposal, .badge.Irritant, .badge.Flammable { color: var(--amber); background: #f5e8d1; }
-      .badge.Rejected, .badge.Corrosive, .badge.Toxic, .badge.Explosive { color: var(--red); background: #f2dbd8; }
-      .alert { border-left: 5px solid var(--red); background: #faeee8; padding: 12px 14px; border-radius: 6px; margin-bottom: 16px; }
+      .stat-label { color: #909399; font-size: 13px; margin-bottom: 8px; }
+      .stat-value { font-size: 28px; font-weight: 600; color: #303133; }
+      .detail-row { margin-bottom: 12px; }
+      .detail-label { color: #909399; font-size: 13px; margin-bottom: 4px; }
+      .detail-value { color: #303133; font-size: 14px; }
+      .page-content {
+        background: #fff;
+        border-radius: 8px;
+        padding: 20px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      }
+      .filter-bar { display: flex; gap: 10px; align-items: center; }
+      .expiry-normal { color: #67c23a; }
+      .expiry-warning { color: #e6a23c; }
+      .expiry-expired { color: #f56c6c; }
+      .stock-low { color: #f56c6c; font-weight: 600; }
       @media (max-width: 760px) {
-        .shell { grid-template-columns: 1fr; }
-        aside { height: auto; position: static; border-right: 0; border-bottom: 1px solid var(--line); }
+        .app-shell { grid-template-columns: 1fr; }
+        .app-sidebar { height: auto; position: static; }
       }
     </style>
   </head>
   <body>
-    <div class="shell">
-      <aside>
-        <h1>科学研究实验<br />记录与协作平台</h1>
-        <button class="nav active" data-view="dashboard">项目总览</button>
-        <button class="nav" data-view="projects">项目管理</button>
-        <button class="nav" data-view="experiments">实验记录</button>
-        <button class="nav" data-view="reagents">试剂管理</button>
-        <button class="nav" data-view="usages">领用记录</button>
-      </aside>
-      <main id="app">加载中...</main>
-    </div>
+    <div id="app"></div>
+
+    <script src="https://unpkg.com/vue@3.5.13/dist/vue.global.prod.js"></script>
+    <script src="https://unpkg.com/vue-router@4.5.0/dist/vue-router.global.prod.js"></script>
+    <script src="https://unpkg.com/element-plus@2.9.1/dist/index.full.min.js"></script>
+    <script src="https://unpkg.com/@element-plus/icons-vue@2.3.1/dist/index.iife.min.js"></script>
+
     <script>
-      const api = async (path, options = {}) => {
-        const response = await fetch(`/api${path}`, {
+      const { createApp, ref, computed, onMounted, reactive, h } = Vue;
+      const { createRouter, createWebHashHistory, useRouter } = VueRouter;
+
+      const API_BASE = "/api";
+
+      async function api(path, options = {}) {
+        const response = await fetch(`${API_BASE}${path}`, {
           ...options,
-          headers: { "content-type": "application/json", "x-demo-role": "PI", ...(options.headers || {}) }
+          headers: {
+            "content-type": "application/json",
+            "x-demo-role": "PI",
+            ...(options.headers || {})
+          }
         });
         const payload = await response.json();
         if (!response.ok) throw new Error(payload.message || "请求失败");
         return payload.data;
-      };
-      const badge = (value) => `<span class="badge ${value}">${value}</span>`;
-      const currency = (value) => new Intl.NumberFormat("zh-CN", { style: "currency", currency: "CNY", maximumFractionDigits: 0 }).format(value);
-      let state = { view: "dashboard", dashboard: null, projects: [], experiments: [], reagents: [], usages: [], members: [] };
+      }
 
-      async function show(view) {
-        state.view = view;
-        document.querySelectorAll(".nav").forEach((button) => button.classList.toggle("active", button.dataset.view === view));
-        if (view === "dashboard") state.dashboard = await api("/dashboard");
-        if (view === "projects") { state.projects = await api("/projects"); state.members = await api("/members"); }
-        if (view === "experiments") { state.experiments = await api("/experiments"); state.projects = await api("/projects"); }
-        if (view === "reagents") state.reagents = await api("/reagents");
-        if (view === "usages") { state.usages = await api("/reagent-usages"); state.reagents = await api("/reagents"); state.experiments = await api("/experiments"); }
-        render();
+      const EXPIRY_WARNING_DAYS = 30;
+
+      function getDaysRemaining(expiryDate) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const expiry = new Date(expiryDate);
+        expiry.setHours(0, 0, 0, 0);
+        const diffTime = expiry.getTime() - today.getTime();
+        return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       }
-      function render() {
-        const app = document.getElementById("app");
-        if (state.view === "dashboard") {
-          const d = state.dashboard;
-          app.innerHTML = `<h2>项目总览</h2><div class="alert">待审核实验记录 ${d.pendingReviews} 条，低库存试剂 ${d.lowStockReagents.length} 项。</div>
-          <section class="grid">
-            <div class="card">在研项目<div class="stat">${d.activeProjects.length}</div></div>
-            <div class="card">近7天实验记录<div class="stat">${d.recentExperimentCount}</div></div>
-            <div class="card">低库存试剂<div>${d.lowStockReagents.map((x) => `${x.name}: ${x.stock}${x.unit}`).join("<br>") || "库存稳定"}</div></div>
-          </section>
-          ${table(["项目", "方向", "状态", "经费"], d.activeProjects.map((x) => [x.name, x.direction, badge(x.status), progress(x.usedBudget, x.totalBudget)]))}`;
-        }
-        if (state.view === "projects") {
-          app.innerHTML = `<h2>项目管理</h2><div class="toolbar"><button class="action" onclick="createProject()">新建项目</button></div>
-          ${table(["项目", "编号", "状态", "经费使用", "成员数"], state.projects.map((x) => [x.name, x.projectNo, badge(x.status), progress(x.usedBudget, x.totalBudget), state.members.filter((m) => m.projectId === x.id).length]))}`;
-        }
-        if (state.view === "experiments") {
-          app.innerHTML = `<h2>实验记录</h2><div class="toolbar"><button class="action" onclick="createExperiment()">创建记录</button></div>
-          <textarea placeholder="富文本JSON：支持表格、图片、公式等结构化片段"></textarea>
-          ${table(["流程", "标题", "项目", "审核状态", "操作"], state.experiments.map((x) => ["撰写 → 提交 → 审核", x.title, projectName(x.projectId), badge(x.reviewStatus), `<button class="action secondary" onclick="submitExperiment('${x.id}')">提交</button> <button class="action warning" onclick="reviewExperiment('${x.id}')">审核通过</button>`]))}`;
-        }
-        if (state.view === "reagents") {
-          app.innerHTML = `<h2>试剂管理</h2><div class="toolbar"><button class="action" onclick="createReagent()">新增试剂</button></div>
-          ${table(["试剂", "CAS", "危险等级", "库存", "存放位置", "操作"], state.reagents.map((x) => [x.name, x.casNo, badge(x.hazardLevel), stock(x), x.location, `<button class="action secondary" onclick="stockIn('${x.id}')">入库</button>`]))}`;
-        }
-        if (state.view === "usages") {
-          app.innerHTML = `<h2>领用记录</h2><div class="toolbar"><button class="action" onclick="createUsage()">创建领用单</button></div>
-          ${table(["试剂", "数量", "实验", "用途", "审批人"], state.usages.map((x) => [reagentName(x.reagentId), x.quantity, experimentName(x.experimentId), x.purpose, x.approverId || "-"]))}`;
-        }
+
+      function getExpiryStatus(expiryDate) {
+        const days = getDaysRemaining(expiryDate);
+        if (days < 0) return "expired";
+        if (days <= EXPIRY_WARNING_DAYS) return "warning";
+        return "normal";
       }
-      function table(headers, rows) {
-        return `<table><thead><tr>${headers.map((h) => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows.map((row) => `<tr>${row.map((cell) => `<td>${cell}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+
+      function getExpiryStatusText(expiryDate) {
+        const days = getDaysRemaining(expiryDate);
+        const status = getExpiryStatus(expiryDate);
+        if (status === "expired") return `已过期 ${Math.abs(days)} 天`;
+        if (status === "warning") return `临期（剩余 ${days} 天）`;
+        return `剩余 ${days} 天`;
       }
-      function progress(used, total) {
-        const percent = Math.min(100, Math.round((used / total) * 100));
-        return `${currency(used)} / ${currency(total)}<div class="progress"><span style="width:${percent}%"></span></div>`;
+
+      function hazardBadgeType(level) {
+        if (level === "Safe") return "success";
+        if (["Rejected", "Corrosive", "Toxic", "Explosive"].includes(level)) return "danger";
+        return "warning";
       }
-      function stock(x) {
-        return `<strong style="color:${x.stock < x.minStock ? "var(--red)" : "var(--green)"}">${x.stock}${x.unit}</strong> / 阈值 ${x.minStock}${x.unit}`;
+
+      const DashboardPage = {
+        template: `
+          <div>
+            <div class="page-header">
+              <h2 class="page-title">项目总览</h2>
+            </div>
+            <el-alert v-if="dashboard" :title="'待审核实验记录 ' + dashboard.pendingReviews + ' 条，低库存试剂 ' + dashboard.lowStockReagents.length + ' 项。'" type="warning" show-icon :closable="false" style="margin-bottom: 20px" />
+            <div v-if="dashboard" class="stat-cards">
+              <div class="stat-card">
+                <div class="stat-label">在研项目</div>
+                <div class="stat-value">{{ dashboard.activeProjects.length }}</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">近7天实验记录</div>
+                <div class="stat-value">{{ dashboard.recentExperimentCount }}</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">低库存试剂</div>
+                <div class="stat-value" style="color:#f56c6c">{{ dashboard.lowStockReagents.length }}</div>
+              </div>
+            </div>
+            <div v-if="dashboard" class="page-content">
+              <h3 style="margin-top:0">在研项目</h3>
+              <el-table :data="dashboard.activeProjects" stripe>
+                <el-table-column prop="name" label="项目名称" />
+                <el-table-column prop="direction" label="研究方向" width="120" />
+                <el-table-column prop="status" label="状态" width="120">
+                  <template #default="{ row }">
+                    <el-tag :type="row.status === 'Active' ? 'success' : 'warning'" size="small">{{ row.status }}</el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column label="经费使用" width="240">
+                  <template #default="{ row }">
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <el-progress :percentage="Math.round((row.usedBudget / row.totalBudget) * 100)" :stroke-width="8" style="flex:1" />
+                      <span style="font-size:12px;color:#909399">{{ formatCurrency(row.usedBudget) }}/{{ formatCurrency(row.totalBudget) }}</span>
+                    </div>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+          </div>
+        `,
+        setup() {
+          const dashboard = ref(null);
+          const formatCurrency = (v) => new Intl.NumberFormat("zh-CN", { style: "currency", currency: "CNY", maximumFractionDigits: 0 }).format(v);
+          onMounted(async () => {
+            try {
+              dashboard.value = await api("/dashboard");
+            } catch (e) {
+              console.error(e);
+            }
+          });
+          return { dashboard, formatCurrency };
+        }
+      };
+
+      const ProjectsPage = {
+        template: `
+          <div>
+            <div class="page-header">
+              <h2 class="page-title">项目管理</h2>
+              <el-button type="primary" @click="createProject">新建项目</el-button>
+            </div>
+            <div class="page-content">
+              <el-table :data="projects" stripe>
+                <el-table-column prop="name" label="项目名称" />
+                <el-table-column prop="projectNo" label="项目编号" width="180" />
+                <el-table-column prop="status" label="状态" width="110">
+                  <template #default="{ row }">
+                    <el-tag :type="row.status === 'Active' ? 'success' : 'warning'" size="small">{{ row.status }}</el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="direction" label="方向" width="100" />
+                <el-table-column label="经费使用" width="220">
+                  <template #default="{ row }">
+                    <el-progress :percentage="Math.round((row.usedBudget / row.totalBudget) * 100)" :stroke-width="8" />
+                  </template>
+                </el-table-column>
+                <el-table-column label="成员数" width="90">
+                  <template #default="{ row }">{{ memberCount(row.id) }}</template>
+                </el-table-column>
+              </el-table>
+            </div>
+          </div>
+        `,
+        setup() {
+          const projects = ref([]);
+          const members = ref([]);
+          const memberCount = (projectId) => members.value.filter((m) => m.projectId === projectId).length;
+          const load = async () => {
+            projects.value = await api("/projects");
+            members.value = await api("/members");
+          };
+          const createProject = async () => {
+            await api("/projects", { method: "POST", body: JSON.stringify({ name: "单细胞数据复核项目", projectNo: "RL-2026-BIO-099", direction: "Biology", totalBudget: 180000 }) });
+            load();
+          };
+          onMounted(load);
+          return { projects, memberCount, createProject };
+        }
+      };
+
+      const ExperimentsPage = {
+        template: `
+          <div>
+            <div class="page-header">
+              <h2 class="page-title">实验记录</h2>
+              <el-button type="primary" @click="createExperiment">创建记录</el-button>
+            </div>
+            <div class="page-content">
+              <el-table :data="experiments" stripe>
+                <el-table-column prop="title" label="实验标题" />
+                <el-table-column label="所属项目" width="200">
+                  <template #default="{ row }">{{ projectName(row.projectId) }}</template>
+                </el-table-column>
+                <el-table-column prop="reviewStatus" label="审核状态" width="120">
+                  <template #default="{ row }">
+                    <el-tag :type="row.reviewStatus === 'Approved' ? 'success' : row.reviewStatus === 'Rejected' ? 'danger' : 'warning'" size="small">{{ row.reviewStatus }}</el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column label="操作" width="180">
+                  <template #default="{ row }">
+                    <el-button size="small" link type="primary" @click="submitExperiment(row.id)" v-if="row.reviewStatus === 'Draft'">提交审核</el-button>
+                    <el-button size="small" link type="success" @click="reviewExperiment(row.id)" v-if="row.reviewStatus === 'Submitted'">审核通过</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+          </div>
+        `,
+        setup() {
+          const experiments = ref([]);
+          const projects = ref([]);
+          const projectName = (id) => projects.value.find((x) => x.id === id)?.name || id;
+          const load = async () => {
+            experiments.value = await api("/experiments");
+            projects.value = await api("/projects");
+          };
+          const createExperiment = async () => {
+            await api("/experiments", { method: "POST", body: JSON.stringify({ projectId: projects.value[0]?.id, title: "Western Blot 条件摸索", purpose: "优化抗体稀释比例", method: "WB" }) });
+            load();
+          };
+          const submitExperiment = async (id) => {
+            await api(`/experiments/${id}/submit`, { method: "PATCH" });
+            load();
+          };
+          const reviewExperiment = async (id) => {
+            await api(`/experiments/${id}/review`, { method: "PATCH", body: JSON.stringify({ status: "Approved", comment: "记录完整，允许归档" }) });
+            load();
+          };
+          onMounted(load);
+          return { experiments, projectName, createExperiment, submitExperiment, reviewExperiment };
+        }
+      };
+
+      const ReagentsPage = {
+        template: `
+          <div>
+            <div class="page-header">
+              <h2 class="page-title">试剂管理</h2>
+              <div class="filter-bar">
+                <el-radio-group v-model="filterExpiry" size="default">
+                  <el-radio-button value="all">全部</el-radio-button>
+                  <el-radio-button value="warning">临期</el-radio-button>
+                  <el-radio-button value="expired">已过期</el-radio-button>
+                </el-radio-group>
+                <el-button type="primary" @click="createReagent">新增试剂</el-button>
+              </div>
+            </div>
+            <div class="page-content">
+              <el-table :data="filteredReagents" stripe style="width: 100%" @row-click="openDetail">
+                <el-table-column prop="name" label="试剂名称" min-width="130" />
+                <el-table-column prop="casNo" label="CAS号" width="130" />
+                <el-table-column prop="hazardLevel" label="危险等级" width="110">
+                  <template #default="{ row }">
+                    <el-tag :type="hazardBadgeType(row.hazardLevel)" size="small">{{ row.hazardLevel }}</el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column label="库存" width="160">
+                  <template #default="{ row }">
+                    <span :class="{ 'stock-low': row.stock < row.minStock }">
+                      {{ row.stock }} {{ row.unit }}
+                      <el-tag v-if="row.stock < row.minStock" type="danger" size="small" effect="light" style="margin-left: 6px">库存不足</el-tag>
+                    </span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="expiryDate" label="保质期截止" width="120" />
+                <el-table-column label="保质期状态" width="170">
+                  <template #default="{ row }">
+                    <el-tag :type="expiryTagType(row.expiryDate)" effect="light" size="small">
+                      {{ getExpiryStatusText(row.expiryDate) }}
+                    </el-tag>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="supplier" label="供应商" width="110" />
+                <el-table-column prop="location" label="存放位置" min-width="110" />
+                <el-table-column label="操作" width="130" fixed="right">
+                  <template #default="{ row }">
+                    <el-button type="primary" link size="small" @click.stop="openDetail(row)">详情</el-button>
+                    <el-button type="success" link size="small" @click.stop="stockIn(row.id)">入库</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+              <el-empty v-if="filteredReagents.length === 0" description="暂无符合条件的试剂" style="padding: 40px 0" />
+            </div>
+
+            <el-drawer v-model="detailVisible" :title="selectedReagent?.name || '试剂详情'" direction="rtl" size="560px">
+              <template v-if="selectedReagent">
+                <el-alert
+                  v-if="selectedReagent.stock < selectedReagent.minStock"
+                  type="error"
+                  show-icon
+                  :closable="false"
+                  :title="selectedReagent.name + ' 库存低于阈值'"
+                  style="margin-bottom: 12px"
+                />
+                <el-alert
+                  v-if="getExpiryStatus(selectedReagent.expiryDate) === 'expired'"
+                  type="error"
+                  show-icon
+                  :closable="false"
+                  :title="selectedReagent.name + ' 已过期 ' + Math.abs(getDaysRemaining(selectedReagent.expiryDate)) + ' 天'"
+                  style="margin-bottom: 12px"
+                />
+                <el-alert
+                  v-else-if="getExpiryStatus(selectedReagent.expiryDate) === 'warning'"
+                  type="warning"
+                  show-icon
+                  :closable="false"
+                  :title="selectedReagent.name + ' 即将过期（剩余 ' + getDaysRemaining(selectedReagent.expiryDate) + ' 天）'"
+                  style="margin-bottom: 12px"
+                />
+
+                <el-descriptions :column="1" border style="margin-top: 16px">
+                  <el-descriptions-item label="试剂名称">{{ selectedReagent.name }}</el-descriptions-item>
+                  <el-descriptions-item label="CAS号">{{ selectedReagent.casNo }}</el-descriptions-item>
+                  <el-descriptions-item label="分子式">{{ selectedReagent.formula }}</el-descriptions-item>
+                  <el-descriptions-item label="纯度">{{ selectedReagent.purity }}</el-descriptions-item>
+                  <el-descriptions-item label="危险等级">
+                    <el-tag :type="hazardBadgeType(selectedReagent.hazardLevel)">{{ selectedReagent.hazardLevel }}</el-tag>
+                  </el-descriptions-item>
+                  <el-descriptions-item label="存储条件">{{ selectedReagent.storageCondition }}</el-descriptions-item>
+                  <el-descriptions-item label="供应商">{{ selectedReagent.supplier }}</el-descriptions-item>
+                  <el-descriptions-item label="存放位置">{{ selectedReagent.location }}</el-descriptions-item>
+                  <el-descriptions-item label="当前库存">
+                    <span :class="{ 'stock-low': selectedReagent.stock < selectedReagent.minStock }">
+                      {{ selectedReagent.stock }} {{ selectedReagent.unit }}
+                    </span>
+                  </el-descriptions-item>
+                  <el-descriptions-item label="最低库存阈值">
+                    {{ selectedReagent.minStock }} {{ selectedReagent.unit }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="保质期截止日期">
+                    {{ selectedReagent.expiryDate }}
+                  </el-descriptions-item>
+                  <el-descriptions-item label="剩余天数">
+                    <span
+                      :style="{
+                        color: getExpiryStatus(selectedReagent.expiryDate) === 'expired' ? '#f56c6c' : getExpiryStatus(selectedReagent.expiryDate) === 'warning' ? '#e6a23c' : '#67c23a',
+                        fontWeight: 600
+                      }"
+                    >
+                      {{ getExpiryStatusText(selectedReagent.expiryDate) }}
+                    </span>
+                  </el-descriptions-item>
+                </el-descriptions>
+              </template>
+            </el-drawer>
+          </div>
+        `,
+        setup() {
+          const reagents = ref([]);
+          const filterExpiry = ref("all");
+          const detailVisible = ref(false);
+          const selectedReagent = ref(null);
+
+          const filteredReagents = computed(() => {
+            if (filterExpiry.value === "all") return reagents.value;
+            return reagents.value.filter((r) => getExpiryStatus(r.expiryDate) === filterExpiry.value);
+          });
+
+          const expiryTagType = (expiryDate) => {
+            const status = getExpiryStatus(expiryDate);
+            if (status === "expired") return "danger";
+            if (status === "warning") return "warning";
+            return "success";
+          };
+
+          const load = async () => {
+            reagents.value = await api("/reagents");
+          };
+
+          const openDetail = (row) => {
+            selectedReagent.value = row;
+            detailVisible.value = true;
+          };
+
+          const createReagent = async () => {
+            const defaultExpiry = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+            await api("/reagents", {
+              method: "POST",
+              body: JSON.stringify({
+                name: "Tris-HCl",
+                casNo: "1185-53-1",
+                formula: "C4H12ClNO3",
+                stock: 3,
+                minStock: 2,
+                unit: "瓶",
+                expiryDate: defaultExpiry
+              })
+            });
+            load();
+          };
+
+          const stockIn = async (id) => {
+            await api(`/reagents/${id}/stock-in`, { method: "PATCH", body: JSON.stringify({ quantity: 2 }) });
+            load();
+          };
+
+          onMounted(load);
+
+          return {
+            reagents,
+            filterExpiry,
+            filteredReagents,
+            detailVisible,
+            selectedReagent,
+            hazardBadgeType,
+            getDaysRemaining,
+            getExpiryStatus,
+            getExpiryStatusText,
+            expiryTagType,
+            openDetail,
+            createReagent,
+            stockIn
+          };
+        }
+      };
+
+      const UsagesPage = {
+        template: `
+          <div>
+            <div class="page-header">
+              <h2 class="page-title">领用记录</h2>
+              <el-button type="primary" @click="createUsage">创建领用单</el-button>
+            </div>
+            <div class="page-content">
+              <el-table :data="usages" stripe>
+                <el-table-column label="试剂名称" width="150">
+                  <template #default="{ row }">{{ reagentName(row.reagentId) }}</template>
+                </el-table-column>
+                <el-table-column prop="quantity" label="数量" width="100" />
+                <el-table-column label="关联实验" width="200">
+                  <template #default="{ row }">{{ experimentName(row.experimentId) }}</template>
+                </el-table-column>
+                <el-table-column prop="purpose" label="用途" />
+                <el-table-column prop="usedAt" label="领用日期" width="120" />
+                <el-table-column label="审批人" width="120">
+                  <template #default="{ row }">{{ row.approverId || '-' }}</template>
+                </el-table-column>
+              </el-table>
+            </div>
+          </div>
+        `,
+        setup() {
+          const usages = ref([]);
+          const reagents = ref([]);
+          const experiments = ref([]);
+          const reagentName = (id) => reagents.value.find((x) => x.id === id)?.name || id;
+          const experimentName = (id) => experiments.value.find((x) => x.id === id)?.title || id;
+          const load = async () => {
+            usages.value = await api("/reagent-usages");
+            reagents.value = await api("/reagents");
+            experiments.value = await api("/experiments");
+          };
+          const createUsage = async () => {
+            if (reagents.value.length && experiments.value.length) {
+              await api("/reagent-usages", {
+                method: "POST",
+                body: JSON.stringify({
+                  reagentId: reagents.value[1]?.id,
+                  experimentId: experiments.value[0]?.id,
+                  quantity: 1,
+                  purpose: "缓冲液配置"
+                })
+              });
+              load();
+            }
+          };
+          onMounted(load);
+          return { usages, reagentName, experimentName, createUsage };
+        }
+      };
+
+      const AppLayout = {
+        template: `
+          <div class="app-shell">
+            <aside class="app-sidebar">
+              <div class="app-logo">科学研究实验<br/>记录与协作平台</div>
+              <router-link to="/dashboard" class="nav-item" active-class="active">
+                <el-icon><DataAnalysis /></el-icon>
+                <span>项目总览</span>
+              </router-link>
+              <router-link to="/projects" class="nav-item" active-class="active">
+                <el-icon><Folder /></el-icon>
+                <span>项目管理</span>
+              </router-link>
+              <router-link to="/experiments" class="nav-item" active-class="active">
+                <el-icon><Document /></el-icon>
+                <span>实验记录</span>
+              </router-link>
+              <router-link to="/reagents" class="nav-item" active-class="active">
+                <el-icon><Box /></el-icon>
+                <span>试剂管理</span>
+              </router-link>
+              <router-link to="/reagent-usages" class="nav-item" active-class="active">
+                <el-icon><Tickets /></el-icon>
+                <span>领用记录</span>
+              </router-link>
+            </aside>
+            <main class="app-main">
+              <router-view />
+            </main>
+          </div>
+        `
+      };
+
+      const routes = [
+        { path: "/", redirect: "/dashboard" },
+        { path: "/dashboard", component: DashboardPage },
+        { path: "/projects", component: ProjectsPage },
+        { path: "/experiments", component: ExperimentsPage },
+        { path: "/reagents", component: ReagentsPage },
+        { path: "/reagent-usages", component: UsagesPage }
+      ];
+
+      const router = createRouter({
+        history: createWebHashHistory(),
+        routes
+      });
+
+      const app = createApp(AppLayout);
+      app.use(router);
+      app.use(ElementPlus);
+
+      for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+        app.component(key, component);
       }
-      const projectName = (id) => state.projects.find((x) => x.id === id)?.name || id;
-      const reagentName = (id) => state.reagents.find((x) => x.id === id)?.name || id;
-      const experimentName = (id) => state.experiments.find((x) => x.id === id)?.title || id;
-      async function createProject() { await api("/projects", { method: "POST", body: JSON.stringify({ name: "单细胞数据复核项目", projectNo: "RL-2026-BIO-099", direction: "Biology", totalBudget: 180000 }) }); state.projects = await api("/projects"); render(); }
-      async function createExperiment() { await api("/experiments", { method: "POST", body: JSON.stringify({ projectId: state.projects[0].id, title: "Western Blot 条件摸索", purpose: "优化抗体稀释比例", method: "WB" }) }); state.experiments = await api("/experiments"); render(); }
-      async function submitExperiment(id) { await api(`/experiments/${id}/submit`, { method: "PATCH" }); state.experiments = await api("/experiments"); render(); }
-      async function reviewExperiment(id) { await api(`/experiments/${id}/review`, { method: "PATCH", body: JSON.stringify({ status: "Approved", comment: "记录完整，允许归档" }) }); state.experiments = await api("/experiments"); render(); }
-      async function createReagent() { await api("/reagents", { method: "POST", body: JSON.stringify({ name: "Tris-HCl", casNo: "1185-53-1", formula: "C4H12ClNO3", stock: 3, minStock: 2, unit: "瓶" }) }); state.reagents = await api("/reagents"); render(); }
-      async function stockIn(id) { await api(`/reagents/${id}/stock-in`, { method: "PATCH", body: JSON.stringify({ quantity: 2 }) }); state.reagents = await api("/reagents"); render(); }
-      async function createUsage() { await api("/reagent-usages", { method: "POST", body: JSON.stringify({ reagentId: state.reagents[1].id, experimentId: state.experiments[0].id, quantity: 1, purpose: "缓冲液配置" }) }); state.usages = await api("/reagent-usages"); state.reagents = await api("/reagents"); render(); }
-      document.querySelectorAll(".nav").forEach((button) => button.onclick = () => show(button.dataset.view));
-      show("dashboard").catch((error) => document.getElementById("app").textContent = error.message);
+
+      app.mount("#app");
     </script>
   </body>
 </html>
