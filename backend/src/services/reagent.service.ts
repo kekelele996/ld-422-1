@@ -3,6 +3,24 @@ import { HazardLevel, StorageCondition } from "../types/enums.ts";
 import type { Reagent } from "../types/interfaces.ts";
 import { ApiError } from "../utils/response.ts";
 
+export const EXPIRY_WARNING_DAYS = 30;
+
+export function getDaysRemaining(expiryDate: string): number {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const expiry = new Date(expiryDate);
+  expiry.setHours(0, 0, 0, 0);
+  const diffTime = expiry.getTime() - today.getTime();
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+
+export function getExpiryStatus(expiryDate: string): "normal" | "warning" | "expired" {
+  const days = getDaysRemaining(expiryDate);
+  if (days < 0) return "expired";
+  if (days <= EXPIRY_WARNING_DAYS) return "warning";
+  return "normal";
+}
+
 export const reagentService = {
   list(lowOnly = false) {
     return lowOnly ? reagents.filter((item) => item.stock < item.minStock) : reagents;
@@ -10,7 +28,12 @@ export const reagentService = {
   detail(id: string) {
     const reagent = reagents.find((item) => item.id === id);
     if (!reagent) throw new ApiError(404, "REAGENT_NOT_FOUND", "试剂不存在");
-    return { ...reagent, usageHistory: reagentUsages.filter((usage) => usage.reagentId === id) };
+    return {
+      ...reagent,
+      daysRemaining: getDaysRemaining(reagent.expiryDate),
+      expiryStatus: getExpiryStatus(reagent.expiryDate),
+      usageHistory: reagentUsages.filter((usage) => usage.reagentId === id)
+    };
   },
   create(input: Partial<Reagent>) {
     const reagent: Reagent = {
@@ -25,7 +48,8 @@ export const reagentService = {
       stock: Number(input.stock ?? 0),
       unit: input.unit ?? "瓶",
       minStock: Number(input.minStock ?? 1),
-      location: input.location ?? "未分配"
+      location: input.location ?? "未分配",
+      expiryDate: input.expiryDate ?? new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
     };
     reagents.unshift(reagent);
     return reagent;

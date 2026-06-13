@@ -4,6 +4,7 @@ import type { Reagent } from "../types/reagent";
 
 export const reagentApi = {
   list: (lowOnly = false) => request<Reagent[]>(`${API_PATHS.reagents}?lowOnly=${lowOnly}`),
+  detail: (id: string) => request<Reagent & { usageHistory: unknown[]; daysRemaining?: number; expiryStatus?: string }>(`${API_PATHS.reagents}/${id}`),
   create: (payload: Partial<Reagent>) => request<Reagent>(API_PATHS.reagents, { method: "POST", body: JSON.stringify(payload) }),
   stockIn: (id: string, quantity: number) => request<Reagent>(`${API_PATHS.reagents}/${id}/stock-in`, { method: "PATCH", body: JSON.stringify({ quantity }) })
 };

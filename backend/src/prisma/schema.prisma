@@ -50,6 +50,7 @@ model Reagent {
   unit String
   minStock Float
   location String
+  expiryDate DateTime
 }
 
 model ReagentUsage {

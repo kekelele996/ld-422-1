@@ -13,6 +13,9 @@ export type Reagent = {
   unit: "g" | "mL" | "L" | "mol" | "瓶";
   minStock: number;
   location: string;
+  expiryDate: string;
+  daysRemaining?: number;
+  expiryStatus?: "normal" | "warning" | "expired";
 };
 
 export type ReagentUsage = {

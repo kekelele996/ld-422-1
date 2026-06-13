@@ -42,6 +42,7 @@ export type Reagent = {
   unit: "g" | "mL" | "L" | "mol" | "瓶";
   minStock: number;
   location: string;
+  expiryDate: string;
 };
 export type ReagentUsage = {
   id: string;
