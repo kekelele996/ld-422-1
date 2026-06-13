@@ -31,6 +31,7 @@
       </el-table-column>
       <el-table-column prop="supplier" label="供应商" min-width="100" />
       <el-table-column prop="location" label="存放位置" min-width="100" />
+      <el-table-column prop="expiryDate" label="保质期截止" width="120" />
       <el-table-column label="保质期状态" width="180">
         <template #default="{ row }">
           <ExpiryBadge :expiry-date="row.expiryDate" />
